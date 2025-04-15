@@ -12,9 +12,9 @@ const CONFIG = {
   checkInterval: 5 * 60 * 1000, // 5 minutes in milliseconds
   minNotificationInterval: 60 * 60 * 1000, // 1 hour in milliseconds
   logFile: path.join(__dirname, 'price-monitor.log'),
-  // CoinMarketCap IDs for the tokens (could change, verify in CoinMarketCap's API docs)
-  carrotId: '24498', // Carrot by Puffer
-  pufferId: '27295' // Puffer
+  // CoinMarketCap IDs for the tokens
+  carrotId: '35839', // Carrot by Puffer
+  pufferId: '32325' // Puffer
 };
 
 // State variables
