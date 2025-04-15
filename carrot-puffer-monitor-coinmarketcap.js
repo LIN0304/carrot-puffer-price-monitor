@@ -3,6 +3,18 @@ const axios = require('axios');
 const fs = require('fs');
 const path = require('path');
 
+// Parse command line arguments
+const args = process.argv.slice(2);
+let notifyIntervalArg = null;
+
+// Check for --notify-interval argument
+for (let i = 0; i < args.length; i++) {
+  if (args[i] === '--notify-interval' && i + 1 < args.length) {
+    notifyIntervalArg = parseInt(args[i + 1]) * 60 * 1000; // Convert minutes to milliseconds
+    break;
+  }
+}
+
 // Config variables (replace with your own values)
 const CONFIG = {
   coinmarketcapApiKey: 'YOUR_COINMARKETCAP_API_KEY', // Get from https://coinmarketcap.com/api/
@@ -10,7 +22,11 @@ const CONFIG = {
   telegramChatId: 'YOUR_TELEGRAM_CHAT_ID',
   discountRatio: 0.55, // 55% threshold
   checkInterval: 5 * 60 * 1000, // 5 minutes in milliseconds
-  minNotificationInterval: 60 * 60 * 1000, // 1 hour in milliseconds
+  // Notification interval is now configurable with fallbacks:
+  // 1. Command line argument (--notify-interval X)
+  // 2. Environment variable (NOTIFY_INTERVAL)
+  // 3. Default (10 minutes)
+  notifyInterval: notifyIntervalArg || parseInt(process.env.NOTIFY_INTERVAL || '10') * 60 * 1000,
   logFile: path.join(__dirname, 'price-monitor.log'),
   // CoinMarketCap IDs for the tokens
   carrotId: '35839', // Carrot by Puffer
@@ -67,11 +83,13 @@ async function fetchPrices() {
         
         // Check if enough time has passed since the last notification
         const now = Date.now();
-        if (now - lastNotificationTime > CONFIG.minNotificationInterval) {
+        if (now - lastNotificationTime > CONFIG.notifyInterval) {
           await sendTelegramNotification(carrotPrice, pufferPrice, thresholdPrice, discountPercentage);
           lastNotificationTime = now;
         } else {
-          log('Skipped notification due to rate limit');
+          const nextNotificationTime = new Date(lastNotificationTime + CONFIG.notifyInterval);
+          const minutesRemaining = Math.floor((nextNotificationTime - now) / 60000);
+          log(`Skipped notification due to rate limit. Next notification possible in ~${minutesRemaining} minutes`);
         }
       } else {
         log('No discount detected. Carrot price is above the threshold.');
@@ -120,6 +138,7 @@ async function sendTelegramNotification(carrotPrice, pufferPrice, thresholdPrice
 function startMonitoring() {
   log('Price monitoring started');
   log(`Checking prices every ${CONFIG.checkInterval / 60000} minutes`);
+  log(`Notification interval set to ${CONFIG.notifyInterval / 60000} minutes`);
   
   // Run immediately on startup
   fetchPrices();
