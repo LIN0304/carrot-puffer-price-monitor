@@ -5,7 +5,10 @@
   "main": "carrot-puffer-monitor.js",
   "scripts": {
     "start": "node carrot-puffer-monitor.js",
-    "start:cmc": "node carrot-puffer-monitor-coinmarketcap.js"
+    "start:cmc": "node carrot-puffer-monitor-coinmarketcap.js",
+    "start:cmc:frequent": "node carrot-puffer-monitor-coinmarketcap.js --notify-interval 5",
+    "start:cmc:medium": "node carrot-puffer-monitor-coinmarketcap.js --notify-interval 15",
+    "start:cmc:hourly": "node carrot-puffer-monitor-coinmarketcap.js --notify-interval 60"
   },
   "keywords": [
     "cryptocurrency",
