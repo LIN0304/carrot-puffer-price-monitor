@@ -12,6 +12,7 @@ This repository contains multiple implementations of a price monitoring tool for
 - Configurable discount threshold (default: 55%)
 - Telegram notifications when discount is detected
 - Customizable check intervals
+- Configurable notification frequency
 - Detailed activity logging
 - Both web and Node.js implementations
 
@@ -26,6 +27,7 @@ This repository contains multiple implementations of a price monitoring tool for
 2. **CoinMarketCap Version** (`carrot-puffer-monitor-coinmarketcap.js`)
    - Uses the CoinMarketCap API (requires an API key)
    - More reliable for accurate price data
+   - Supports configurable notification intervals
 
 ### Web-Based Implementations
 
@@ -44,7 +46,7 @@ This repository contains multiple implementations of a price monitoring tool for
 
 1. Install required packages:
    ```
-   npm install axios
+   npm install
    ```
 
 2. Edit the CONFIG object in the script with your Telegram credentials:
@@ -61,11 +63,29 @@ This repository contains multiple implementations of a price monitoring tool for
    coinmarketcapApiKey: 'YOUR_COINMARKETCAP_API_KEY',
    ```
 
-4. Run the script:
+4. Run the script with different notification intervals:
    ```
-   node carrot-puffer-monitor.js
-   # OR
-   node carrot-puffer-monitor-coinmarketcap.js
+   # Default (10 minute notification interval)
+   npm run start:cmc
+   
+   # More frequent notifications (every 5 minutes)
+   npm run start:cmc:frequent
+   
+   # Medium frequency (every 15 minutes)
+   npm run start:cmc:medium
+   
+   # Hourly notifications
+   npm run start:cmc:hourly
+   ```
+
+5. Or run directly with a custom notification interval (in minutes):
+   ```
+   node carrot-puffer-monitor-coinmarketcap.js --notify-interval 3
+   ```
+
+6. You can also use an environment variable:
+   ```
+   NOTIFY_INTERVAL=2 node carrot-puffer-monitor-coinmarketcap.js
    ```
 
 ### Web Implementation
@@ -86,6 +106,25 @@ This repository contains multiple implementations of a price monitoring tool for
 
 1. Register at [CoinMarketCap](https://coinmarketcap.com/api/)
 2. Create an API key from your dashboard
+
+## Running 24/7 (Production Use)
+
+For continuous monitoring, you can use a process manager like PM2:
+
+```bash
+# Install PM2 globally
+npm install -g pm2
+
+# Start with default settings
+pm2 start carrot-puffer-monitor-coinmarketcap.js --name "carrot-monitor"
+
+# Or with custom notification interval (5 minutes)
+pm2 start carrot-puffer-monitor-coinmarketcap.js --name "carrot-monitor" -- --notify-interval 5
+
+# Make it auto-restart on server reboot
+pm2 startup
+pm2 save
+```
 
 ## License
 
